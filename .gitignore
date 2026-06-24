@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db
+render*/
+screenshots*/
+scratch*/
+*.docx
+*.pdf
+*.png
+*.jpg
+*.jpeg
