@@ -1,0 +1,4 @@
+interface:
+  display_name: "Claim Chart"
+  short_description: "Fill patent comparison claim charts in Word."
+  default_prompt: "Use $claim-chart to fill a patent comparison Word table against the target company."
