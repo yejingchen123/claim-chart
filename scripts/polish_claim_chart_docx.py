@@ -27,6 +27,7 @@ HEREIN = re.compile(r'Herein,\s*[“"](?P<claim>.+?)[”"]\s+corresponds to\s+(?
 REF = re.compile(r'^\s*\[Ref-(\d+)\]')
 INLINE_REF = re.compile(r'\[Ref-\d+[^\]]*\]')
 URL = re.compile(r'https?://[^\s<>]+')
+PLAIN_REFERENCE = re.compile(r'\s*\[Ref-\d+\]\s+https?://\S+\s*')
 
 
 @dataclass(frozen=True)
@@ -186,6 +187,19 @@ def evidence_events(cell):
     return events
 
 
+def evidence_prose(cell):
+    """Visible text outside the comment and bare [Ref-N] URL lines."""
+    after_comment = False
+    extras = []
+    for paragraph in cell.paragraphs:
+        text = paragraph_text(paragraph).strip()
+        if after_comment and text and not PLAIN_REFERENCE.fullmatch(text):
+            extras.append(text)
+        if text.startswith('Herein,') and text.endswith(']'):
+            after_comment = True
+    return extras
+
+
 def image_first(events):
     kinds = [kind for kind, _ in events]
     if 'MIXED' in kinds:
@@ -255,6 +269,9 @@ def collect_issues(document, template=None):
         p for row in template.tables[1].rows for p in comment_paragraphs(row.cells[1])
     ] if template is not None else []
     allow_inline = any(INLINE_REF.search(paragraph_text(p)) for p in template_comments)
+    allow_evidence_prose = template is not None and any(
+        evidence_prose(row.cells[1]) for row in template.tables[1].rows
+    )
     template_hereins = [(p, HEREIN.search(paragraph_text(p))) for p in template_comments]
     require_emphasis = template is None or any(
         match and span_has(p, *match.span('claim'), 'bold') for p, match in template_hereins
@@ -321,6 +338,8 @@ def collect_issues(document, template=None):
                     report('CLAIM_PHRASE', f'Row {index}: the Herein claim phrase differs from the reference for the same left-column limitation.')
         if not image_first(evidence_events(cell)):
             report('EVIDENCE_ORDER', f'Row {index}: pair each screenshot with its own following URL; supplementary references may follow.')
+        if evidence_prose(cell) and not allow_evidence_prose:
+            report('EVIDENCE_PROSE', f'Row {index}: remove added captions, source descriptions or dates; the reference uses only screenshots and [Ref-N] URL lines after the Comment.')
         for number, urls in reference_lines(cell):
             if number not in first_use:
                 first_use.append(number)

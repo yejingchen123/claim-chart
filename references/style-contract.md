@@ -59,7 +59,9 @@ The required order inside each row is:
 [Ref-2] https://official.example/other-page
 ```
 
-Do not put all URLs before all screenshots. Do not leave a screenshot without its own URL directly after it unless the example clearly does something else. Captions and PDF page locators may follow that URL when useful. Preserve source identity when moving blocks: the URL after screenshot 1 must not be moved with screenshot 2. Never infer a pairing solely because a URL happens to precede the next image.
+Do not put all URLs before all screenshots. Do not leave a screenshot without its own URL directly after it unless the example clearly does something else. Preserve source identity when moving blocks: the URL after screenshot 1 must not be moved with screenshot 2. Never infer a pairing solely because a URL happens to precede the next image.
+
+Match the reference's evidence fields exactly. When it has only screenshots and `[Ref-*] URL` lines, do not add source titles, image captions, descriptions such as “excerpt identifying…”, `Published`/`Accessed` dates, or plain-text PDF page notes. This applies both to separate paragraphs and to extra prose appended to a reference line. Metadata belongs in local source notes. A PDF `#page=18` fragment can stay in the URL without creating another visible field. Include captions or other fields only when the reference shows them or the user explicitly asks for them; perceived usefulness alone is not a reason to add them.
 
 ## First Row
 
@@ -67,7 +69,7 @@ The first row's company column is special:
 
 - Fill it last.
 - Keep the company name heading.
-- When the reference has no intervening prose, proceed directly to `References:`. Do not add a comparison title, date, assessed-service paragraph or access-date note above the references or nested table. Put necessary scope qualifications inside the existing detailed Comment cells; keep access dates in local source notes or source captions when appropriate.
+- When the reference has no intervening prose, proceed directly to `References:`. Do not add a comparison title, date, assessed-service paragraph or access-date note above the references or nested table. Put necessary scope qualifications inside the existing detailed Comment cells; keep access dates in local source notes unless the reference or user requires a visible date field.
 - Add `References:` and make only that label bold.
 - List the URLs that appear in the detailed rows, in first-use order.
 - Fill the nested comparison table's second column with short phrases or simple sentences.
@@ -103,6 +105,7 @@ Before delivery, verify:
 - The final `]` of every comment block is bold italic.
 - Both correspondence phrases have the reference's emphasis; the connecting text retains the body style.
 - Evidence order is image then URL for every evidence item.
+- Evidence fields match the reference: no added captions, source titles, excerpt explanations, dates or prose after URL lines when the reference contains only screenshots and references.
 - `References:` in the first row is bold.
 - First-row URL list contains every URL used in the row-level evidence, ordered by first appearance.
 - Nested summary table second column is complete and concise.

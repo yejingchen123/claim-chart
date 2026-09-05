@@ -52,6 +52,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
 5. Fill evidence for each main-table row.
    - Select enough focused screenshots to substantiate the mapping; do not fill an image quota with weak or repetitive evidence.
    - Follow the reference's evidence order. For the standard image-first layout, each screenshot is followed by its own URL; additional supporting URL lines may follow the evidence blocks.
+   - Match the evidence fields as well as their order. If the reference has only screenshots and `[Ref-*] URL` lines, include only those after the Comment. Do not add source titles, captions, excerpt explanations, publication/access dates or plain-text page notes. Keep that metadata in local work notes; a PDF page fragment may remain part of its URL.
    - Reuse the same official source in multiple rows when it supports multiple claim elements.
    - Keep screenshots readable at the final document scale; size them to the actual cell width. Retain original captures and source/page locators in local work notes.
 
@@ -81,6 +82,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - If LibreOffice is unavailable and Microsoft Word is available on Windows, export to PDF with Word and rasterize the PDF with Poppler.
    - Inspect every rendered page at a readable scale. A contact sheet is an index, not a substitute for page inspection.
    - Fix clipping, broken tables, image overflow, unreadable screenshots, missing URLs, wrong evidence ordering, or style drift before delivery.
+   - Inspect all visible text after each Comment, not just headings and bold spans. In a screenshot-and-URL-only reference, there must be no added evidence prose, including text appended to a URL line.
    - Compare protected left-column text, table geometry, nested labels, headers/footers and field codes against the target baseline. Check the rendered page count and cached page total.
    - Deliver only the requested final document. Keep originals, evidence captures and QA files outside the deliverable and out of the public skill repository.
 

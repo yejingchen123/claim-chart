@@ -164,6 +164,27 @@ class EvidenceTests(unittest.TestCase):
         reference(doc.tables[1].cell(0, 1), 3, '#page=18')
         self.assertEqual(codes(doc), set())
 
+    def test_added_caption_and_dates_are_rejected_when_template_has_none(self):
+        reference_doc = chart()
+        doc = chart()
+        cell = doc.tables[1].cell(0, 1)
+        cell.add_paragraph('Official announcement; excerpt identifying the subsystem. Published 2026-01-01.')
+        self.assertIn('EVIDENCE_PROSE', codes(doc, reference_doc))
+        self.assertIn('EVIDENCE_PROSE', codes(doc))
+
+    def test_prose_appended_to_url_line_is_also_reported(self):
+        doc = chart()
+        cell = doc.tables[1].cell(0, 1)
+        polish.evidence_events(cell)[1][1].add_run(' Accessed September 5, 2026.')
+        self.assertIn('EVIDENCE_PROSE', codes(doc, chart()))
+
+    def test_template_caption_convention_is_respected(self):
+        template = chart()
+        template.tables[1].cell(0, 1).add_paragraph('Source description required by this reference.')
+        doc = chart()
+        doc.tables[1].cell(0, 1).add_paragraph('Source description for the assessed product.')
+        self.assertEqual(codes(doc, template), set())
+
 
 class FormattingTests(unittest.TestCase):
     def test_marker_repairs_preserve_body_typography_hyperlinks_and_properties(self):
