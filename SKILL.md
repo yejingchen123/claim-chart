@@ -9,7 +9,7 @@ description: Fill professional patent comparison claim-chart Word documents. Use
 
 Produce a high-quality Word claim chart. The final output is the filled `.docx`, with the original table structure preserved, the target company's column completed in English, official-source evidence inserted, and render QA completed.
 
-Always use this skill together with the document/DOCX workflow available in the environment. Read `references/style-contract.md` before editing the DOCX.
+Use the document/DOCX workflow available in the environment for authoring and rendering. Read [the style contract](references/style-contract.md) before editing. The supplied reference controls the document's design; generic document advice about titles, introductory summaries, fonts or citations must not add structures absent from that reference. Explicit user instructions take precedence.
 
 ## Inputs To Identify
 
@@ -26,7 +26,8 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
 1. Inspect the example DOCX first.
    - Identify the top summary table, the main claim table, row count, column count, nested tables, image layout, and special formatting.
    - Do not assume visible `[Comment: ...]` text is a Word comment. Inspect the DOCX structure.
-   - Copy the example's style before applying general preferences.
+   - Record the actual opening sequence, inline-citation convention, comment font/size/italics, bold spans in the `Herein` sentence, and screenshot/URL order in a short local style inventory.
+   - Copy those conventions. A request for high quality is not, by itself, a request to redesign the template.
 
 2. Inspect the target DOCX.
    - Confirm which cells are blank and which structures must remain.
@@ -34,6 +35,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - Fill only the target-company column and summary comparison cells.
 
 3. Research the company from official sources.
+   - First identify the concrete product or service being assessed, its provider, deployment and relevant period. Read [research and evidence boundaries](references/research-evidence.md), especially for partner technology, acquired/divested businesses or historical sources.
    - Prefer the company website, official support pages, official news/media pages, official product pages, official whitepapers, or official documentation.
    - Use non-official sources only if official sources cannot establish a necessary fact; disclose that choice in the work notes, not inside the claim chart unless appropriate.
    - For modern companies and products, browse live sources. Do not rely on memory.
@@ -41,40 +43,46 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
 
 4. Map each claim row.
    - Read the patent text in the first-column row carefully.
-   - Decide which company product, feature, service, cloud system, vehicle module, sensor, controller, or workflow is the closest corresponding element.
+   - Identify a supported corresponding element within the assessed product or service. Do not force a match to a merely similar feature or silently substitute another company's general platform.
    - Write detailed English prose in the company column. Be specific about how the company feature performs the same or analogous function.
-   - End the substantive text with: `Herein, "{patent content}" corresponds to {company technology content}.`
+   - End the substantive text with `Herein, “{patent content}” corresponds to {company technology content}.`, using the reference's punctuation and emphasis. Bold both correspondence phrases when the reference does, including the complete relevant claim phrase.
+   - Keep material qualifications next to the mapping. Distinguish documented deployment facts, partner-platform disclosures and unconfirmed inferences. A summary must retain the same qualifications.
+   - When the reference has no inline citation tags, keep `[Ref-*]` out of the Comment prose. Put traceable source lines below the comment, alongside the evidence.
 
 5. Fill evidence for each main-table row.
-   - Use about two relevant screenshots per row when possible; three is acceptable for complex rows.
-   - The required order is image first, then its URL, then image, then URL, continuing in that pattern.
+   - Select enough focused screenshots to substantiate the mapping; do not fill an image quota with weak or repetitive evidence.
+   - Follow the reference's evidence order. For the standard image-first layout, each screenshot is followed by its own URL; additional supporting URL lines may follow the evidence blocks.
    - Reuse the same official source in multiple rows when it supports multiple claim elements.
-   - Keep screenshots readable after insertion. A width around 2.8 to 3.0 inches often matches narrow claim-chart cells.
+   - Keep screenshots readable at the final document scale; size them to the actual cell width. Retain original captures and source/page locators in local work notes.
 
-6. Fill the first row last.
+6. Fill the opening summary row last.
    - Add `References:` followed by all official URLs used in the other company-column rows, ordered by first appearance.
    - `References:` must be bold.
+   - If the reference goes from the company heading directly to `References:`, do the same. Do not insert an extra comparison title, date, scope paragraph or executive summary. Explain the assessed scope in the existing first detailed Comment instead.
    - Fill the nested summary table without changing its structure. Use short phrases or simple sentences, not long prose.
    - Keep the summary table's first column unchanged.
 
 7. Apply final formatting.
    - In each main-table company cell, the visible opening label `[Comment:` must be bold italic.
    - The final closing bracket `]` of the comment block must also be bold italic.
-   - The comment body itself should not be bold italic unless the example uses that style.
+   - Match the example's comment body style and correspondence emphasis separately. An italic body still needs distinct bold claim and product spans in `Herein` when shown in the reference.
    - Do not bold or italicize `[Ref-*]` URL lines unless the example requires it.
-   - Preserve the example's font family and size as closely as possible.
+   - Preserve the example's font family and size; solve layout problems with content length, paragraph spacing and evidence sizing before changing typography.
 
 8. Run the bundled polish helper.
-   - After editing, run:
-     `python scripts/polish_claim_chart_docx.py path/to/file.docx`
-   - Use `--check` first if you only want a report.
-   - This helper formats `[Comment:` and final `]`, bolds `References:`, and enforces image-before-URL evidence ordering for common DOCX structures.
+   - Check without modifying the document:
+     `python scripts/polish_claim_chart_docx.py path/to/file.docx --check --template path/to/reference.docx`
+   - To repair only `References:`, `[Comment:` and the final `]`, use `--fix-labels --output path/to/polished.docx`. The helper preserves the other runs and the input file.
+   - Evidence is never reordered by default. Use `--reorder-url-first --output path/to/polished.docx` only after confirming that the whole evidence sequence consists of URL/image pairs. Mixed or ambiguous layouts require manual pairing.
+   - The checker targets the common two-outer-table, company-in-column-two, image-first layout. It detects structural/style problems, not factual correspondence or full template fidelity. Review intentional user overrides separately; do not reorder a different reference convention to satisfy this checker.
 
 9. Render and visually verify.
    - Render the final DOCX to page images using the document skill renderer.
    - If LibreOffice is unavailable and Microsoft Word is available on Windows, export to PDF with Word and rasterize the PDF with Poppler.
-   - Inspect every page or at minimum a contact sheet plus all dense evidence pages.
+   - Inspect every rendered page at a readable scale. A contact sheet is an index, not a substitute for page inspection.
    - Fix clipping, broken tables, image overflow, unreadable screenshots, missing URLs, wrong evidence ordering, or style drift before delivery.
+   - Compare protected left-column text, table geometry, nested labels, headers/footers and field codes against the target baseline. Check the rendered page count and cached page total.
+   - Deliver only the requested final document. Keep originals, evidence captures and QA files outside the deliverable and out of the public skill repository.
 
 ## Quality Bar
 
@@ -90,4 +98,5 @@ The result should read like a polished legal/technical claim chart, not a rough 
 ## Useful Resources
 
 - `references/style-contract.md`: Exact writing, evidence, and formatting rules.
+- `references/research-evidence.md`: Product scope, partner attribution, source timing and evidence strength.
 - `scripts/polish_claim_chart_docx.py`: Deterministic post-processing and validation helper for common claim-chart DOCX formatting details.
