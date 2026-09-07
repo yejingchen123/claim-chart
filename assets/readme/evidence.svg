@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Trace evidence to its source</title>
+  <path d="M11 12Q25 5 44 10L55 20Q61 34 53 50L40 57Q18 60 9 45L6 27Z" fill="#e4eef5"/>
+  <g fill="none" stroke="#44586a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 13 42 14 41 42 17 41ZM23 21 36 21M23 27 33 28M23 34 30 34"/>
+    <path d="M48 39Q48 29 38 29 28 30 29 40 30 50 40 49 49 48 48 39ZM46 47 54 55M37 34Q33 35 33 39"/>
+  </g>
+</svg>

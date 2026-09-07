@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Preserve the document template</title>
+  <path d="M8 15Q13 6 28 8L48 9Q58 13 57 29L55 48Q49 58 32 57L15 54Q5 47 7 29Z" fill="#e3eddf"/>
+  <g fill="none" stroke="#445343" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 12 43 13 47 18 46 51 17 50Z"/>
+    <path d="M41 13 41 20 47 19M22 24 41 24M22 30 41 31M22 37 41 37M22 44 41 44M30 24 30 44"/>
+    <path d="M13 20 12 54 40 55" opacity=".55"/>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Connect claim elements and product features</title>
+  <path d="M9 17Q18 5 34 8L52 12Q59 22 56 39L48 54Q27 62 12 51L6 35Z" fill="#faf0ce"/>
+  <g fill="none" stroke="#685934" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19 25 18 25 28 12 29ZM39 18 52 19 51 29 39 28ZM12 37 25 36 25 46 12 47ZM39 36 52 37 51 47 39 46"/>
+    <path d="M26 23Q32 21 38 23M33 20 37 23 33 26M26 41Q32 43 38 41M33 38 37 41 33 44"/>
+  </g>
+</svg>

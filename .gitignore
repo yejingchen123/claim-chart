@@ -10,3 +10,6 @@ scratch*/
 *.png
 *.jpg
 *.jpeg
+
+# Allow only the public README cover; keep client evidence images ignored.
+!/assets/readme/hero-handdrawn.png

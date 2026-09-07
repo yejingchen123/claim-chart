@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="title">
+  <title id="title">Review the finished document</title>
+  <path d="M10 14Q23 7 42 9L53 15Q61 29 55 47L43 55Q25 61 11 49L6 32Z" fill="#f4e2d9"/>
+  <g fill="none" stroke="#725044" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M18 15 43 16 43 50 17 49ZM24 14 25 10 36 10 37 18 24 18ZM23 27 36 27M23 34 33 34M23 41 29 41"/>
+    <path d="M35 38 40 44 52 30" stroke="#526949" stroke-width="3"/>
+  </g>
+</svg>

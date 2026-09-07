@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="432" height="32" viewBox="0 0 432 32" role="img" aria-labelledby="title">
+  <title id="title">Codex skill · Word documents · Official-source research</title>
+  <g font-family="Verdana, Arial, sans-serif" font-size="10" font-weight="600" text-anchor="middle" letter-spacing=".7">
+    <rect x="1" y="2" width="118" height="28" rx="14" fill="#e3eddf" stroke="#aabb9f"/>
+    <text x="60" y="20" fill="#354c35">CODEX SKILL</text>
+    <rect x="129" y="2" width="123" height="28" rx="14" fill="#e4eef5" stroke="#a8bccd"/>
+    <text x="190.5" y="20" fill="#3d556a">WORD · DOCX</text>
+    <rect x="262" y="2" width="169" height="28" rx="14" fill="#faf0ce" stroke="#d3bf83"/>
+    <text x="346.5" y="20" fill="#64532b">OFFICIAL SOURCES</text>
+  </g>
+</svg>
