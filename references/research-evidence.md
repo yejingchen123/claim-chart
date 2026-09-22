@@ -24,7 +24,7 @@ Use plain evidence assessments in the existing prose:
 - **Platform disclosed:** the supplier documents the feature, but the deployment's configuration is not established.
 - **Correspondence inferred or unconfirmed:** the proposed functional match requires an assumption, claim interpretation or missing implementation evidence.
 
-These are work-note distinctions, not a required new table or heading in the delivered chart. A concise summary must not turn a conditional detailed mapping into an unconditional match.
+These are work-note and detailed-Comment distinctions, not labels to paste into the nested summary. That summary normally lists only entity/technology names; preserve supplier attribution there and keep substantive qualifications beside the corresponding detailed mapping. A name in the summary is an index to that analysis, not an assertion that every claim limitation is established. Do not invent an entity where no correspondence has been identified.
 
 For example, a ride platform's announcement that a partner's automated driving system powers its service supports that system-level connection. A separate partner article about remote assistance does not by itself prove that remote assistance is enabled in the same service, or that its center performs the claimed traffic-control role.
 

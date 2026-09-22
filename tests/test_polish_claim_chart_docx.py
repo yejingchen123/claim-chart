@@ -16,6 +16,7 @@ from docx.enum.style import WD_STYLE_TYPE
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Inches, Pt
+from lxml import etree
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts'))
 import polish_claim_chart_docx as polish
@@ -57,6 +58,7 @@ def chart(order='image-first', broken_labels=False):
     body_style.base_style = doc.styles['Normal']
     body_style.font.italic = True
     summary = doc.add_table(rows=1, cols=2)
+    summary.autofit = False
     summary.cell(0, 0).text = 'Synthetic claim chart'
     top = summary.cell(0, 1)
     top.paragraphs[0].text = 'Example Supplier'
@@ -65,11 +67,13 @@ def chart(order='image-first', broken_labels=False):
     reference(top, 1)
     reference(top, 2)
     nested = top.add_table(rows=2, cols=2)
+    nested.autofit = False
     nested.cell(0, 0).text = 'Claim Feature'
     nested.cell(0, 1).text = 'Corresponding Element'
     nested.cell(1, 0).text = 'Sensing module'
     nested.cell(1, 1).text = 'Example perception subsystem'
     main = doc.add_table(rows=1, cols=2)
+    main.autofit = False
     main.cell(0, 0).text = 'a sensing module that collects road information;'
     cell = main.cell(0, 1)
     opening = cell.paragraphs[0]
@@ -113,6 +117,129 @@ def chart(order='image-first', broken_labels=False):
 
 def codes(document, template=None):
     return {issue.code for issue in polish.collect_issues(document, template)}
+
+
+def protected_geometry_and_left_cells(document):
+    return (
+        [etree.tostring(element) for element in document.element.body.xpath('.//w:tblW | .//w:tblGrid | .//w:tcW')],
+        [row.xpath('./w:tc')[0].xml for table in polish.body_tables(document) for row in table.xpath('./w:tr')],
+    )
+
+
+def without_table_layouts(document):
+    copy = deepcopy(document)
+    for layout in copy.element.body.xpath('.//w:tblPr/w:tblLayout'):
+        layout.getparent().remove(layout)
+    return copy.element.xml
+
+
+class TableLayoutTests(unittest.TestCase):
+    def test_checker_finds_missing_and_autofit_nested_layouts(self):
+        doc = chart()
+        tables = polish.body_tables(doc)
+        self.assertEqual(len(tables), 3)
+        missing = tables[0].tblPr.tblLayout
+        missing.getparent().remove(missing)
+        tables[1].tblPr.tblLayout.set(qn('w:type'), 'autofit')
+        before = doc.element.xml
+        issues = [issue for issue in polish.collect_issues(doc) if issue.code == 'TABLE_LAYOUT']
+        self.assertEqual(len(issues), 2)
+        self.assertIn('Table 1', issues[0].message)
+        self.assertIn('missing', issues[0].message)
+        self.assertIn('Table 2', issues[1].message)
+        self.assertIn('autofit', issues[1].message)
+        self.assertEqual(doc.element.xml, before)
+
+    def test_long_urls_do_not_justify_changing_widths_or_content(self):
+        doc = chart()
+        long_url = 'https://example.com/' + 'continuous_path_segment_' * 100
+        hyperlink(doc.tables[0].cell(0, 1).add_paragraph(), long_url)
+        hyperlink(doc.tables[1].cell(0, 1).add_paragraph(), long_url)
+        tables = polish.body_tables(doc)
+        for index, table in enumerate(tables):
+            table.tblPr.find(qn('w:tblW')).set(qn('w:w'), str(12000 - index * 1000))
+            table.tblPr.find(qn('w:tblW')).set(qn('w:type'), 'dxa')
+            for column, grid in enumerate(table.tblGrid):
+                grid.set(qn('w:w'), str(3000 + column * 4000 - index * 500))
+            for cell_index, width in enumerate(table.xpath('./w:tr/w:tc/w:tcPr/w:tcW')):
+                width.set(qn('w:w'), str(3100 + cell_index * 100 + index * 10))
+            layout = table.tblPr.tblLayout
+            if index == 0:
+                layout.getparent().remove(layout)
+            else:
+                layout.set(qn('w:type'), 'autofit')
+        protected = protected_geometry_and_left_cells(doc)
+        other_content = without_table_layouts(doc)
+        self.assertEqual(polish.fix_table_layout(doc), 3)
+        self.assertEqual(protected_geometry_and_left_cells(doc), protected)
+        self.assertEqual(without_table_layouts(doc), other_content)
+        self.assertNotIn('TABLE_LAYOUT', codes(doc))
+        before_second = doc.element.xml
+        self.assertEqual(polish.fix_table_layout(doc), 0)
+        self.assertEqual(doc.element.xml, before_second)
+
+    def test_absent_table_properties_are_created_without_changing_grid_or_cells(self):
+        doc = chart()
+        table = polish.body_tables(doc)[1]
+        table.remove(table.tblPr)
+        protected = protected_geometry_and_left_cells(doc)
+        self.assertIn('TABLE_LAYOUT', codes(doc))
+        self.assertEqual(polish.fix_table_layout(doc), 1)
+        self.assertEqual(protected_geometry_and_left_cells(doc), protected)
+        self.assertEqual(table[0].tag, qn('w:tblPr'))
+        self.assertEqual(table.tblPr.tblLayout.get(qn('w:type')), 'fixed')
+
+    def test_duplicate_properties_are_rejected_before_any_table_is_mutated(self):
+        doc = chart()
+        tables = polish.body_tables(doc)
+        tables[0].tblPr.tblLayout.set(qn('w:type'), 'autofit')
+        tables[-1].tblPr.append(deepcopy(tables[-1].tblPr.tblLayout))
+        original = doc.element.xml
+        self.assertIn('TABLE_LAYOUT', codes(doc))
+        with self.assertRaises(polish.UnsafeRepair):
+            polish.fix_table_layout(doc)
+        self.assertEqual(doc.element.xml, original)
+
+    def test_cli_fix_is_explicit_separate_and_preserves_unrelated_package_parts(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source, output, repeated = [Path(directory) / name for name in ('source.docx', 'output.docx', 'repeated.docx')]
+            doc = chart()
+            for table in polish.body_tables(doc):
+                table.tblPr.tblLayout.set(qn('w:type'), 'autofit')
+            doc.save(source)
+            with ZipFile(source, 'a') as archive:
+                archive.comment = b'Synthetic archive metadata.'
+                archive.writestr('opaque-fixture.bin', b'Preserve this unrelated package part.')
+            original = source.read_bytes()
+            result = subprocess.run([sys.executable, str(SCRIPT), str(source)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+            self.assertEqual(result.stdout.count('[TABLE_LAYOUT]'), 3)
+            self.assertEqual(source.read_bytes(), original)
+            self.assertFalse(output.exists())
+            result = subprocess.run([sys.executable, str(SCRIPT), str(source), '--fix-table-layout', '--output', str(output)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(source.read_bytes(), original)
+            with ZipFile(source) as old, ZipFile(output) as new:
+                self.assertEqual(old.namelist(), new.namelist())
+                self.assertEqual(old.comment, new.comment)
+                self.assertEqual([name for name in old.namelist() if old.read(name) != new.read(name)], ['word/document.xml'])
+            repaired = Document(output)
+            self.assertEqual(protected_geometry_and_left_cells(doc), protected_geometry_and_left_cells(repaired))
+            self.assertEqual(without_table_layouts(doc), without_table_layouts(repaired))
+            self.assertEqual(codes(repaired), set())
+            result = subprocess.run([sys.executable, str(SCRIPT), str(output), '--fix-table-layout', '--output', str(repeated)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            self.assertEqual(repeated.read_bytes(), output.read_bytes())
+
+    def test_cli_layout_repair_rejects_check_mode_missing_output_and_in_place_output(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'source.docx'
+            chart().save(source)
+            original = source.read_bytes()
+            for extra in (['--fix-table-layout'], ['--fix-table-layout', '--output', str(source)], ['--check', '--fix-table-layout', '--output', str(Path(directory) / 'output.docx')]):
+                result = subprocess.run([sys.executable, str(SCRIPT), str(source), *extra], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2)
+                self.assertEqual(source.read_bytes(), original)
 
 
 class EvidenceTests(unittest.TestCase):

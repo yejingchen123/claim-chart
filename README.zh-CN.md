@@ -145,6 +145,8 @@ reference.docx 是格式和写作参考。
 
 两侧对应内容按模板要求强调。前面的分析解释功能联系，并在对应关系旁保留实质性限定。
 
+嵌套摘要表只列简洁的实体或技术名称，证据状态与限定条件放在详细分析中。外层及嵌套表格都会固定布局，保留模板的原始列宽数值，防止长 URL 在 Word 中撑宽右栏、挤窄左栏。环境中有 Word 时，还会在 Word 中复核实际显示，不能只凭渲染结果判断。
+
 <details>
 <summary><strong>如何处理合作方的技术资料</strong></summary>
 
@@ -192,6 +194,7 @@ python scripts/polish_claim_chart_docx.py chart.docx --fix-labels --output polis
 | `--check` | 只读验证，不改变输入文件；也是默认行为。 |
 | `--template reference.docx` | 按参考文档推断出的约定进行检查。 |
 | `--fix-labels` | 只修复引用标题和 Comment 边界标记，保留其他文字格式。 |
+| `--fix-table-layout` | 关闭外层及嵌套表格的自动调整，保留原有宽度数值。 |
 | `--reorder-url-first` | 显式将已确认、统一的“URL／图片”序列转换成“图片／URL”。 |
 | `--output polished.docx` | 将修复结果另存为新文件；不允许覆盖原输入。 |
 

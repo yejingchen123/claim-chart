@@ -19,6 +19,7 @@ import tempfile
 from zipfile import ZipFile
 
 from docx import Document
+from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.text.run import Run
 
@@ -48,6 +49,32 @@ def supported_layout(document):
         len(table.rows) and all(len(row.cells) >= 2 for row in table.rows)
         for table in document.tables[:2]
     )
+
+
+def body_tables(document):
+    """Include nested tables, which Document.tables deliberately omits."""
+    return document.element.body.xpath('.//w:tbl')
+
+
+def fix_table_layout(document):
+    """Disable content-driven resizing without resetting any recorded widths."""
+    tables = body_tables(document)
+    if any(len(table.xpath('./w:tblPr/w:tblLayout')) > 1 for table in tables):
+        raise UnsafeRepair('A table has duplicate layout properties; inspect it manually.')
+    changed = 0
+    for table in tables:
+        properties = table.find(qn('w:tblPr'))
+        if properties is None:
+            properties = OxmlElement('w:tblPr')
+            table.insert(0, properties)
+        layout = properties.find(qn('w:tblLayout'))
+        if layout is not None and layout.get(qn('w:type')) == 'fixed':
+            continue
+        # The typed accessor inserts the property in schema order and does not
+        # touch tblW, tblGrid, tcW, cell text or existing layout attributes.
+        properties.get_or_add_tblLayout().set(qn('w:type'), 'fixed')
+        changed += 1
+    return changed
 
 
 def run_spans(paragraph):
@@ -265,6 +292,13 @@ def collect_issues(document, template=None):
         return [Issue('LAYOUT', 'Expected a summary and main table with at least two columns in every row.')]
     if template is not None and not supported_layout(template):
         return [Issue('TEMPLATE_LAYOUT', 'The reference does not use the supported two-table layout.')]
+    for index, table in enumerate(body_tables(document), 1):
+        layouts = table.xpath('./w:tblPr/w:tblLayout')
+        if len(layouts) != 1 or layouts[0].get(qn('w:type')) != 'fixed':
+            state = 'missing' if not layouts else ', '.join(
+                layout.get(qn('w:type'), 'unspecified') for layout in layouts
+            )
+            report('TABLE_LAYOUT', f'Table {index} (including nested tables): layout is {state}; long URLs can change Word column widths. Set a fixed layout while retaining the recorded widths.')
     template_comments = [
         p for row in template.tables[1].rows for p in comment_paragraphs(row.cells[1])
     ] if template is not None else []
@@ -385,10 +419,11 @@ def main():
     parser.add_argument('--check', action='store_true', help='Read-only validation (the default).')
     parser.add_argument('--template', type=Path, help='Reference DOCX for summary prose, inline citations and Herein emphasis/wording.')
     parser.add_argument('--fix-labels', action='store_true', help='Repair only References:, [Comment: and the final ].')
+    parser.add_argument('--fix-table-layout', action='store_true', help='Set fixed layout on every body table, including nested tables; preserve all recorded table and cell widths.')
     parser.add_argument('--reorder-url-first', action='store_true', help='Explicitly convert a confirmed, uniform URL/image sequence to image/URL.')
     parser.add_argument('--output', type=Path, help='Separate output DOCX required for repairs; never overwrites the input.')
     args = parser.parse_args()
-    repair = args.fix_labels or args.reorder_url_first
+    repair = args.fix_labels or args.fix_table_layout or args.reorder_url_first
     if args.check and repair:
         parser.error('--check cannot be combined with repair options.')
     if bool(args.output) != bool(repair):
@@ -400,6 +435,8 @@ def main():
         if not supported_layout(document):
             parser.error('Unsupported document layout; inspect and edit it manually.')
         try:
+            if args.fix_table_layout:
+                changes += fix_table_layout(document)
             if args.fix_labels:
                 changes += format_references_label(document)
             for row in document.tables[1].rows:
@@ -411,7 +448,7 @@ def main():
             save_repaired(document, args.docx, args.output, changes)
         except UnsafeRepair as error:
             parser.error(str(error))
-        print(f'Saved {args.output}; repaired {changes} marker(s)/pair(s). Input preserved.')
+        print(f'Saved {args.output}; repaired {changes} marker(s)/pair(s)/table layout(s). Input preserved.')
     issues = collect_issues(document, template)
     if issues:
         print('\n'.join(map(str, issues)))

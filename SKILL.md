@@ -31,6 +31,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
 
 2. Inspect the target DOCX.
    - Confirm which cells are blank and which structures must remain.
+   - Compare the filename's patent identifier with the body and actual claim text. If they conflict, confirm the comparison patent before dependent mapping; continue independent company research. Record the user's resolution and reuse it without asking again or silently rewriting the protected left column.
    - Preserve all first-column patent text and all table geometry unless the user asks otherwise.
    - Fill only the target-company column and summary comparison cells.
 
@@ -45,8 +46,8 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - Read the patent text in the first-column row carefully.
    - Identify a supported corresponding element within the assessed product or service. Do not force a match to a merely similar feature or silently substitute another company's general platform.
    - Write detailed English prose in the company column. Be specific about how the company feature performs the same or analogous function.
-   - End the substantive text with `Herein, “{patent content}” corresponds to {company technology content}.`, using the reference's punctuation and emphasis. Bold both correspondence phrases when the reference does, including the complete relevant claim phrase.
-   - Keep material qualifications next to the mapping. Distinguish documented deployment facts, partner-platform disclosures and unconfirmed inferences. A summary must retain the same qualifications.
+   - For an identified correspondence, end the substantive text with `Herein, “{patent content}” corresponds to {company technology content}.`, using the reference's punctuation and emphasis. Bold both correspondence phrases when the reference does, including the complete relevant claim phrase. If no supported counterpart is identified, state that finding in the detailed Comment instead of forcing an affirmative correspondence sentence; document this intentional checker exception in local QA notes.
+   - Keep material qualifications next to the detailed mapping. Distinguish documented deployment facts, partner-platform disclosures and unconfirmed inferences. Use the nested summary as an index of corresponding entities/technologies, following the summary rules below.
    - When the reference has no inline citation tags, keep `[Ref-*]` out of the Comment prose. Put traceable source lines below the comment, alongside the evidence.
 
 5. Fill evidence for each main-table row.
@@ -57,13 +58,15 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - Keep screenshots readable at the final document scale; size them to the actual cell width. Retain original captures and source/page locators in local work notes.
 
 6. Fill the opening summary row last.
-   - Add `References:` followed by all official URLs used in the other company-column rows, ordered by first appearance.
+   - Add `References:` followed by all source URLs used in the other company-column rows, ordered by first appearance.
    - `References:` must be bold.
    - If the reference goes from the company heading directly to `References:`, do the same. Do not insert an extra comparison title, date, scope paragraph or executive summary. Explain the assessed scope in the existing first detailed Comment instead.
-   - Fill the nested summary table without changing its structure. Use short phrases or simple sentences, not long prose.
+   - Fill the nested summary table without changing its structure. By default, use only concise entity, product, module or technology names. Do not add `proposed`, `candidate`, `unconfirmed`, evidence-status labels or analysis sentences. Keep supplier attribution in the name and substantive qualifications in the matching detailed Comment. Follow an explicit user request for a different summary convention.
+   - Do not invent an entity to fill a gap. If no supported counterpart has been identified, leave that summary cell blank, explain the finding in its detailed Comment and note the deliberate exception to the completeness check. Follow any user-specified treatment for such entries.
    - Keep the summary table's first column unchanged.
 
 7. Apply final formatting.
+   - Preserve the baseline width values and explicitly fix the layout of both outer and nested tables. Unchanged `tblW`, `tblGrid` and `tcW` values do not stop Word auto-fit from compressing the patent column when long URLs are added. Follow the [layout preservation procedure](references/style-contract.md#layout-preservation).
    - In each main-table company cell, the visible opening label `[Comment:` must be bold italic.
    - The final closing bracket `]` of the comment block must also be bold italic.
    - Match the example's comment body style and correspondence emphasis separately. An italic body still needs distinct bold claim and product spans in `Herein` when shown in the reference.
@@ -74,6 +77,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - Check without modifying the document:
      `python scripts/polish_claim_chart_docx.py path/to/file.docx --check --template path/to/reference.docx`
    - To repair only `References:`, `[Comment:` and the final `]`, use `--fix-labels --output path/to/polished.docx`. The helper preserves the other runs and the input file.
+   - To disable content-based resizing without changing stored widths, use `--fix-table-layout --output path/to/fixed.docx`. This covers nested tables too and can be combined with `--fix-labels`.
    - Evidence is never reordered by default. Use `--reorder-url-first --output path/to/polished.docx` only after confirming that the whole evidence sequence consists of URL/image pairs. Mixed or ambiguous layouts require manual pairing.
    - The checker targets the common two-outer-table, company-in-column-two, image-first layout. It detects structural/style problems, not factual correspondence or full template fidelity. Review intentional user overrides separately; do not reorder a different reference convention to satisfy this checker.
 
@@ -81,6 +85,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - Render the final DOCX to page images using the document skill renderer.
    - If LibreOffice is unavailable and Microsoft Word is available on Windows, export to PDF with Word and rasterize the PDF with Poppler.
    - Inspect every rendered page at a readable scale. A contact sheet is an index, not a substitute for page inspection.
+   - When Word is available, also open the final file there to check outer/nested column proportions and long-link wrapping, especially after a width-related fix. A clean LibreOffice render does not prove Word will retain the same layout. If Word is unavailable, disclose that verification limit instead of claiming native Word verification.
    - Fix clipping, broken tables, image overflow, unreadable screenshots, missing URLs, wrong evidence ordering, or style drift before delivery.
    - Inspect all visible text after each Comment, not just headings and bold spans. In a screenshot-and-URL-only reference, there must be no added evidence prose, including text appended to a URL line.
    - Compare protected left-column text, table geometry, nested labels, headers/footers and field codes against the target baseline. Check the rendered page count and cached page total.

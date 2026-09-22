@@ -144,6 +144,8 @@ The shape of a typical mapping, using placeholders:
 
 Both sides receive the reference's emphasis. The supporting prose explains the connection and keeps material limitations beside it.
 
+The nested summary lists concise entity or technology names. Evidence status and qualifications belong in the detailed analysis. Table layouts are explicitly fixed without changing the template's width values, including nested tables, so long URLs do not push Word's columns out of proportion. When Word is available, review the result there as well as in the rendered pages.
+
 <details>
 <summary><strong>How partner evidence is handled</strong></summary>
 
@@ -191,6 +193,7 @@ python scripts/polish_claim_chart_docx.py chart.docx --fix-labels --output polis
 | `--check` | Validate without changing the input. This is the default. |
 | `--template reference.docx` | Check conventions inferred from the supplied reference. |
 | `--fix-labels` | Repair only the reference and comment markers, preserving other run formatting. |
+| `--fix-table-layout` | Disable auto-fit on outer and nested tables while preserving stored widths. |
 | `--reorder-url-first` | Explicitly convert a confirmed, uniform URL/image sequence to image/URL order. |
 | `--output polished.docx` | Write repairs to a separate file; in-place overwrites are refused. |
 

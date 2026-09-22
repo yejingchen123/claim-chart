@@ -46,7 +46,7 @@ Use official pages first:
 
 For each row, collect evidence that directly supports the mapping. A good evidence screenshot shows the relevant page text or feature card. Avoid decorative-only images.
 
-An official supplier page is evidence about that supplier. Its applicability to the named target depends on the product/deployment connection; follow [research and evidence boundaries](research-evidence.md). Keep company roles and unresolved mappings equally clear in the detailed rows and nested summary.
+An official supplier page is evidence about that supplier. Its applicability to the named target depends on the product/deployment connection; follow [research and evidence boundaries](research-evidence.md). Keep the supplier's name in the summary entity when needed for attribution; explain deployment limits and unresolved mappings in the detailed Comment.
 
 ## Evidence Ordering
 
@@ -72,7 +72,8 @@ The first row's company column is special:
 - When the reference has no intervening prose, proceed directly to `References:`. Do not add a comparison title, date, assessed-service paragraph or access-date note above the references or nested table. Put necessary scope qualifications inside the existing detailed Comment cells; keep access dates in local source notes unless the reference or user requires a visible date field.
 - Add `References:` and make only that label bold.
 - List the URLs that appear in the detailed rows, in first-use order.
-- Fill the nested comparison table's second column with short phrases or simple sentences.
+- Fill the nested comparison table's second column with concise entity or technology names, unless the user explicitly asks for another convention. For example, use `Example Driver onboard computer` or `Example Perception sensor fusion`, without `proposed`, `candidate`, `unconfirmed` or evidence-status suffixes.
+- Treat these cells as an index to the detailed mappings. Keep conditions, evidence gaps and claim-interpretation qualifications beside the correspondence in the detailed Comment, not in the entity-name cell. Retain supplier attribution and do not invent a component that the research has not identified.
 - Do not change the nested table's row order, labels, or first-column text.
 
 ## Comment Formatting
@@ -90,6 +91,9 @@ For each main-table company-column row:
 
 - Preserve all original table structures, row order, first-column patent text, headers, footers, confidentiality footers, page numbering, and nested tables.
 - Keep column widths and page geometry fixed unless the user authorizes a change. First shorten repetitive prose, adjust paragraph spacing or size evidence to fit.
+- Capture `w:tblW`, `w:tblGrid/w:gridCol`, `w:tcW` and the layout mode for every outer and nested table before editing. Set `w:tblPr/w:tblLayout` to `w:type="fixed"` while retaining the existing width values. In python-docx, `table.autofit = False` applies only to that table; traverse nested tables too. Disabling auto-fit is a deliberate layout-mode change, not a reason to redistribute columns or normalize their widths. Respect an explicit request to retain automatic sizing.
+- Long hyperlinks can expand a Word table even when all saved column-width values match the baseline. Do not fix that by squeezing the patent column or shrinking the document font. Lock the layout and check URL wrapping, image bounds and column proportions in the resulting document.
+- Prefer a narrow OOXML patch when the task must preserve untouched package parts. Compare the final file with the target baseline: permit the intended company content and layout-mode changes while preserving left-cell XML, width values, page settings and unrelated parts. Keep the baseline and the previous delivery locally when correcting a delivered file.
 - Use image sizes that fit the actual second column and remain legible at final scale.
 - Do not introduce extra pages with only one orphaned URL or a tiny leftover image if a modest image-size adjustment can avoid it.
 
@@ -100,16 +104,17 @@ Before delivery, verify:
 - The opening sequence matches the reference, with no added preamble.
 - Comment prose contains no inline reference tags when the reference has none.
 - Every main-table second-column row has detailed text.
-- Every main-table comment has a final `Herein...corresponds to...` sentence.
+- Every supported mapping has a final `Herein...corresponds to...` sentence. A row with no identified counterpart states that finding instead; its blank summary cell is a documented exception, not a reason to fabricate a mapping.
 - `[Comment:` is bold italic in every detailed row.
 - The final `]` of every comment block is bold italic.
 - Both correspondence phrases have the reference's emphasis; the connecting text retains the body style.
-- Evidence order is image then URL for every evidence item.
+- Evidence order is image then URL for every evidence item unless the reference or user specifies a different convention.
 - Evidence fields match the reference: no added captions, source titles, excerpt explanations, dates or prose after URL lines when the reference contains only screenshots and references.
 - `References:` in the first row is bold.
 - First-row URL list contains every URL used in the row-level evidence, ordered by first appearance.
-- Nested summary table second column is complete and concise.
-- Target-company, supplier and deployment attribution is accurate, and summary certainty matches the detailed evidence.
-- Protected left-column text, table properties and nested labels match the original target; headers, footers and field codes are preserved.
+- Nested summary cells contain entity/technology names without analysis or status labels; supplier attribution remains accurate and each entry points to its qualified detailed mapping.
+- Protected left-column text, width values and nested labels match the original target; fixed layout is explicit on outer and nested tables, and headers, footers and field codes are preserved.
 - DOCX opens cleanly.
 - Every rendered page has been inspected for clipping, broken tables, missing images, orphaned fragments and incorrect page totals.
+- For Word delivery, verify the column proportions and long-URL wrapping in native Word when available. LibreOffice and Word can handle auto-fit differently; unchanged XML widths or a clean LibreOffice render alone are insufficient evidence of matching Word layout. Report any unavailable native check accurately.
+- After a narrow correction, render the latest file. Previously inspected pages may be reused only if a pixel comparison shows them to be identical; inspect every changed page. The file handed over must be the checked revision.
