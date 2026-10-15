@@ -24,7 +24,7 @@ Use plain evidence assessments in the existing prose:
 - **Platform disclosed:** the supplier documents the feature, but the deployment's configuration is not established.
 - **Correspondence inferred or unconfirmed:** the proposed functional match requires an assumption, claim interpretation or missing implementation evidence.
 
-These are work-note and detailed-Comment distinctions, not labels to paste into the nested summary. That summary normally lists only entity/technology names; preserve supplier attribution there and keep substantive qualifications beside the corresponding detailed mapping. A name in the summary is an index to that analysis, not an assertion that every claim limitation is established. Do not invent an entity where no correspondence has been identified.
+These are work-note distinctions; describe material limits briefly in the detailed Comment without using the labels as summary entries. Complete every summary comparison cell with an actual entity/technology name, using the closest disclosed function for a partial correspondence. Preserve supplier attribution. A summary name indexes the qualified comparison and does not assert that every claim limitation is established. Continue research where necessary; never invent an entity or capability to fill a cell.
 
 For example, a ride platform's announcement that a partner's automated driving system powers its service supports that system-level connection. A separate partner article about remote assistance does not by itself prove that remote assistance is enabled in the same service, or that its center performs the claimed traffic-control role.
 
@@ -35,7 +35,7 @@ For example, a ride platform's announcement that a partner's automated driving s
 - Distinguish an announced plan, pilot, operator-attended deployment and driverless operation. A general safety requirement is not proof that a particular vehicle implements it.
 - Match all functional parts of the limitation. Similar names or the presence of sensors plus connectivity do not establish a combined control path.
 - For alternatives such as weather **and/or** special information, identify the supported alternative. Do not invent a weather feed or treat ordinary dispatch coordinates as hazard guidance.
-- If the evidence cannot establish a limitation, say what remains unconfirmed. Identify the concrete missing evidence, such as a deployment specification, interface description or vehicle log, without fabricating a match or declaring an unsupported legal outcome.
+- If the evidence establishes only part of a limitation, identify the closest disclosed function and state the material limit in a short sentence before the required final `Herein` mapping. Keep extended gap analysis and requests for missing specifications in local research notes unless the user asks for that analysis. A real recovery function, for example, must not be described as sensor-fault recovery when only route-delay recovery is documented.
 
 ## Keep Evidence Reviewable
 

@@ -44,9 +44,9 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
 
 4. Map each claim row.
    - Read the patent text in the first-column row carefully.
-   - Identify a supported corresponding element within the assessed product or service. Do not force a match to a merely similar feature or silently substitute another company's general platform.
+   - Identify the supported corresponding element within the assessed product or service. If the evidence supports only part of the limitation, select the closest disclosed entity or function and briefly state the functional limit in the Comment; do not present an analogous feature as proof of the entire limitation or silently substitute another company's general platform.
    - Write detailed English prose in the company column. Be specific about how the company feature performs the same or analogous function.
-   - For an identified correspondence, end the substantive text with `Herein, “{patent content}” corresponds to {company technology content}.`, using the reference's punctuation and emphasis. Bold both correspondence phrases when the reference does, including the complete relevant claim phrase. If no supported counterpart is identified, state that finding in the detailed Comment instead of forcing an affirmative correspondence sentence; document this intentional checker exception in local QA notes.
+   - End every row's substantive text with `Herein, “{complete substantive claim phrase}” corresponds to {supported product feature}.`, using the reference's emphasis. Take the claim phrase from that row's protected left column and remove only leading structural numbering such as `1.`, `1)` or `2)` from the right-column quotation. Preserve all substantive words and conditions; do not copy an abbreviated quotation from the example. Bold both complete correspondence phrases when the reference does. Keep any brief qualification before this final sentence; do not omit the sentence because the correspondence is partial.
    - Keep material qualifications next to the detailed mapping. Distinguish documented deployment facts, partner-platform disclosures and unconfirmed inferences. Use the nested summary as an index of corresponding entities/technologies, following the summary rules below.
    - When the reference has no inline citation tags, keep `[Ref-*]` out of the Comment prose. Put traceable source lines below the comment, alongside the evidence.
 
@@ -62,7 +62,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - `References:` must be bold.
    - If the reference goes from the company heading directly to `References:`, do the same. Do not insert an extra comparison title, date, scope paragraph or executive summary. Explain the assessed scope in the existing first detailed Comment instead.
    - Fill the nested summary table without changing its structure. By default, use only concise entity, product, module or technology names. Do not add `proposed`, `candidate`, `unconfirmed`, evidence-status labels or analysis sentences. Keep supplier attribution in the name and substantive qualifications in the matching detailed Comment. Follow an explicit user request for a different summary convention.
-   - Do not invent an entity to fill a gap. If no supported counterpart has been identified, leave that summary cell blank, explain the finding in its detailed Comment and note the deliberate exception to the completeness check. Follow any user-specified treatment for such entries.
+   - Complete every company-side summary cell. For a partial correspondence, enter the closest actual disclosed entity or technology and put a concise limitation in its detailed Comment. Missing evidence for the full limitation is not a reason to leave the cell blank or insert a status label. Continue research if no actual relevant feature has yet been identified; never invent a component to satisfy completeness.
    - Keep the summary table's first column unchanged.
 
 7. Apply final formatting.

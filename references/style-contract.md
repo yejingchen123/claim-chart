@@ -8,7 +8,7 @@ Inspect the actual reference, including its Word runs. Record the opening sequen
 
 ## Writing Pattern
 
-Each main-table company-column cell should generally contain:
+Unless the user specifies another convention, every main-table company-column cell contains:
 
 1. A visible comment block beginning with `[Comment:`.
 2. One or more detailed paragraphs mapping the patent row to company technology.
@@ -16,11 +16,11 @@ Each main-table company-column cell should generally contain:
    `Herein, "{patent content}" corresponds to {company technology content}.]`
 4. Evidence screenshots and URL lines.
 
-The patent content inside the `Herein` sentence should reproduce the complete relevant phrase for that row, not a generic restatement of the entire claim or an ellipsis that hides a limitation. The company technology content should name the exact product, module, sensor, cloud service, controller, algorithm, or feature being compared. Preserve substantive conditions and unconfirmed deployment details in the sentence or immediately adjacent prose.
+Take the patent content inside `Herein` from that row's protected left column, preserving the complete substantive phrase rather than a generic restatement, shortened template quotation or ellipsis. Omit only its leading structural enumeration (`1.`, `1)`, `2)`, etc.) in the right-column quotation; leave the left column unchanged. The company phrase names the exact product, module, sensor, cloud service, controller, algorithm or feature being compared. When only part of the limitation is supported, use the closest actual disclosed function and state the limit briefly in the preceding Comment prose. A partial correspondence still requires the final `Herein` sentence; it must not imply that the evidence establishes every condition.
 
 If the reference emphasizes the correspondence, reproduce two distinct bold spans:
 
-> Herein, “**a sensing module provided in an AV**” corresponds to **the identified vehicle sensor and perception subsystem**, which collects the surrounding road information.]
+> Herein, “**a sensing module provided in an AV, said sensing module collecting driving environment information; and**” corresponds to **the identified vehicle sensor and perception subsystem**.]
 
 In Word, apply actual run formatting to both phrases; do not insert literal Markdown markers. Keep `Herein,`, quotation marks and `corresponds to` in the surrounding body style. In an italic template, both highlighted phrases are bold italic while the connecting text stays italic. The helper checks that the claim is bold and the mapped element starts with bold text; human review must verify the full intended product phrase is emphasized.
 
@@ -73,6 +73,7 @@ The first row's company column is special:
 - Add `References:` and make only that label bold.
 - List the URLs that appear in the detailed rows, in first-use order.
 - Fill the nested comparison table's second column with concise entity or technology names, unless the user explicitly asks for another convention. For example, use `Example Driver onboard computer` or `Example Perception sensor fusion`, without `proposed`, `candidate`, `unconfirmed` or evidence-status suffixes.
+- Fill every comparison cell, including partial correspondences. Use the closest actual disclosed entity or technology; do not leave a blank or substitute a gap-analysis sentence. Continue research if a relevant feature has not yet been identified, without inventing a name or capability.
 - Treat these cells as an index to the detailed mappings. Keep conditions, evidence gaps and claim-interpretation qualifications beside the correspondence in the detailed Comment, not in the entity-name cell. Retain supplier attribution and do not invent a component that the research has not identified.
 - Do not change the nested table's row order, labels, or first-column text.
 
@@ -104,7 +105,7 @@ Before delivery, verify:
 - The opening sequence matches the reference, with no added preamble.
 - Comment prose contains no inline reference tags when the reference has none.
 - Every main-table second-column row has detailed text.
-- Every supported mapping has a final `Herein...corresponds to...` sentence. A row with no identified counterpart states that finding instead; its blank summary cell is a documented exception, not a reason to fabricate a mapping.
+- Every main-table row has a final `Herein...corresponds to...` sentence, including partial correspondences. Its quoted claim reproduces the full substantive left-column phrase without leading enumeration; any functional limitation is stated briefly before it.
 - `[Comment:` is bold italic in every detailed row.
 - The final `]` of every comment block is bold italic.
 - Both correspondence phrases have the reference's emphasis; the connecting text retains the body style.
@@ -112,7 +113,7 @@ Before delivery, verify:
 - Evidence fields match the reference: no added captions, source titles, excerpt explanations, dates or prose after URL lines when the reference contains only screenshots and references.
 - `References:` in the first row is bold.
 - First-row URL list contains every URL used in the row-level evidence, ordered by first appearance.
-- Nested summary cells contain entity/technology names without analysis or status labels; supplier attribution remains accurate and each entry points to its qualified detailed mapping.
+- Every nested summary comparison cell is filled with an actual entity/technology name, without analysis or status labels; supplier attribution remains accurate and each entry points to its qualified detailed mapping.
 - Protected left-column text, width values and nested labels match the original target; fixed layout is explicit on outer and nested tables, and headers, footers and field codes are preserved.
 - DOCX opens cleanly.
 - Every rendered page has been inspected for clipping, broken tables, missing images, orphaned fragments and incorrect page totals.

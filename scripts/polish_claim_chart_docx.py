@@ -29,6 +29,8 @@ REF = re.compile(r'^\s*\[Ref-(\d+)\]')
 INLINE_REF = re.compile(r'\[Ref-\d+[^\]]*\]')
 URL = re.compile(r'https?://[^\s<>]+')
 PLAIN_REFERENCE = re.compile(r'\s*\[Ref-\d+\]\s+https?://\S+\s*')
+LEADING_ENUMERATION = re.compile(r'^\s*(?:\d+[.)]|\(\d+\))\s+')
+SUMMARY_STATUS = re.compile(r'\b(?:unconfirmed|proposed|candidate|not established|no (?:supporting )?evidence)\b', re.I)
 
 
 @dataclass(frozen=True)
@@ -282,6 +284,16 @@ def summary_prose(document):
     return [text for text in texts[1:] if text != 'References:' and not REF.match(text)]
 
 
+def substantive_claim(text):
+    """Normalize comparison text only; never rewrite the protected patent cell.
+
+    Enumeration and terminal punctuation are structural. All words, including
+    trailing conjunctions and functional conditions, remain part of the check.
+    """
+    text = LEADING_ENUMERATION.sub('', text, count=1)
+    return ' '.join(text.split()).rstrip(' .;:')
+
+
 def collect_issues(document, template=None):
     issues = []
 
@@ -323,6 +335,8 @@ def collect_issues(document, template=None):
         for index, row in enumerate(table.rows[1:], 1):
             if len(row.cells) < 2 or not row.cells[1].text.strip():
                 report('SUMMARY_EMPTY', f'Nested summary row {index}: company cell is empty.')
+            elif SUMMARY_STATUS.search(row.cells[1].text):
+                report('SUMMARY_STATUS', f'Nested summary row {index}: use an actual entity/technology name without evidence-status labels; put brief qualifications in the detailed Comment.')
 
     top_lines = reference_lines(summary)
     top = dict(top_lines)
@@ -347,8 +361,8 @@ def collect_issues(document, template=None):
         closing = paragraphs[-1] if paragraphs else None
         text = paragraph_text(closing).rstrip() if closing is not None else ''
         match = HEREIN.search(text)
-        if not match or not text.endswith(']'):
-            report('HEREIN', f'Row {index}: missing complete Herein correspondence paragraph ending in ].')
+        if not match or not text.startswith('Herein,') or not text.endswith('.]'):
+            report('HEREIN', f'Row {index}: missing complete Herein correspondence paragraph ending in .].')
         else:
             if not all(span_has(closing, len(text) - 1, len(text), prop) for prop in ('bold', 'italic')):
                 report('COMMENT_CLOSING', f'Row {index}: final ] is not bold italic.')
@@ -361,15 +375,11 @@ def collect_issues(document, template=None):
                 connector = text.index('corresponds to', match.start())
                 if span_has(closing, connector, connector + len('corresponds to'), 'bold'):
                     report('CORRESPONDENCE_FRAME', f'Row {index}: keep the connector in the body style, rather than bolding all of Herein.')
-            if template is not None and index <= len(template.tables[1].rows):
-                reference_row = template.tables[1].rows[index - 1]
-                expected = next(filter(None, (
-                    HEREIN.search(paragraph_text(p))
-                    for p in comment_paragraphs(reference_row.cells[1])
-                )), None)
-                same_left = ' '.join(row.cells[0].text.split()) == ' '.join(reference_row.cells[0].text.split())
-                if expected and same_left and ' '.join(match.group('claim').split()) != ' '.join(expected.group('claim').split()):
-                    report('CLAIM_PHRASE', f'Row {index}: the Herein claim phrase differs from the reference for the same left-column limitation.')
+            quoted_claim = match.group('claim')
+            if LEADING_ENUMERATION.match(quoted_claim):
+                report('CLAIM_NUMBERING', f'Row {index}: remove leading structural numbering from the Herein quotation; preserve it in the left column.')
+            if substantive_claim(quoted_claim) != substantive_claim(row.cells[0].text):
+                report('CLAIM_PHRASE', f'Row {index}: the Herein quotation must reproduce the complete substantive left-column claim phrase, with only its leading enumeration omitted.')
         if not image_first(evidence_events(cell)):
             report('EVIDENCE_ORDER', f'Row {index}: pair each screenshot with its own following URL; supplementary references may follow.')
         if evidence_prose(cell) and not allow_evidence_prose:
@@ -417,7 +427,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('docx', type=Path)
     parser.add_argument('--check', action='store_true', help='Read-only validation (the default).')
-    parser.add_argument('--template', type=Path, help='Reference DOCX for summary prose, inline citations and Herein emphasis/wording.')
+    parser.add_argument('--template', type=Path, help='Reference DOCX for summary prose, inline citations and Herein emphasis. Claim wording is checked against the target left column.')
     parser.add_argument('--fix-labels', action='store_true', help='Repair only References:, [Comment: and the final ].')
     parser.add_argument('--fix-table-layout', action='store_true', help='Set fixed layout on every body table, including nested tables; preserve all recorded table and cell widths.')
     parser.add_argument('--reorder-url-first', action='store_true', help='Explicitly convert a confirmed, uniform URL/image sequence to image/URL.')

@@ -386,12 +386,68 @@ class FormattingTests(unittest.TestCase):
             run.bold = True
         self.assertIn('CORRESPONDENCE_FRAME', codes(doc))
 
-    def test_abbreviated_claim_is_detected_against_same_limitation(self):
-        reference_doc = chart()
+    def test_abbreviated_claim_is_detected_without_a_reference(self):
         doc = chart()
         herein = polish.comment_paragraphs(doc.tables[1].cell(0, 1))[-1]
         herein.runs[1].text = 'a sensing module ... road information'
-        self.assertIn('CLAIM_PHRASE', codes(doc, reference_doc))
+        self.assertIn('CLAIM_PHRASE', codes(doc))
+
+    def test_complete_unnumbered_quote_is_checked_against_left_not_short_template_quote(self):
+        for enumeration in ('1. ', '1) ', '2) ', '(3) '):
+            with self.subTest(enumeration=enumeration):
+                doc = chart()
+                left = doc.tables[1].cell(0, 0)
+                left.text = enumeration + left.text
+                reference_doc = deepcopy(doc)
+                reference_quote = polish.comment_paragraphs(reference_doc.tables[1].cell(0, 1))[-1]
+                reference_quote.runs[1].text = enumeration + 'a sensing module'
+                protected = protected_geometry_and_left_cells(doc)
+                self.assertEqual(codes(doc, reference_doc), set())
+                self.assertEqual(protected_geometry_and_left_cells(doc), protected)
+
+    def test_numbered_right_quote_is_reported_even_when_the_substantive_text_is_complete(self):
+        for enumeration in ('1. ', '1) ', '2) ', '(3) '):
+            with self.subTest(enumeration=enumeration):
+                doc = chart()
+                left = doc.tables[1].cell(0, 0)
+                left.text = enumeration + left.text
+                herein = polish.comment_paragraphs(doc.tables[1].cell(0, 1))[-1]
+                herein.runs[1].text = enumeration + herein.runs[1].text
+                self.assertIn('CLAIM_NUMBERING', codes(doc))
+                self.assertNotIn('CLAIM_PHRASE', codes(doc))
+
+    def test_missing_functional_condition_is_reported_even_if_template_also_omits_it(self):
+        doc = chart()
+        doc.tables[1].cell(0, 0).text = '2) a sensing module that collects road information and uses a backup plan if a sensor fails; and'
+        self.assertIn('CLAIM_PHRASE', codes(doc, deepcopy(doc)))
+        herein = polish.comment_paragraphs(doc.tables[1].cell(0, 1))[-1]
+        herein.runs[1].text = 'a sensing module that collects road information and uses a backup plan if a sensor fails; and'
+        self.assertEqual(codes(doc), set())
+
+    def test_substantive_numeric_values_are_not_treated_as_enumeration(self):
+        doc = chart()
+        phrase = '1.5 GHz communication circuitry for a 2) protocol field'
+        doc.tables[1].cell(0, 0).text = phrase + ';'
+        herein = polish.comment_paragraphs(doc.tables[1].cell(0, 1))[-1]
+        herein.runs[1].text = phrase
+        self.assertEqual(codes(doc), set())
+
+    def test_summary_status_does_not_substitute_for_an_actual_technology_name(self):
+        doc = chart()
+        summary = doc.tables[0].cell(0, 1).tables[0].cell(1, 1)
+        for text in ('Unconfirmed', 'Proposed Example recovery control', 'Example subsystem (candidate)'):
+            with self.subTest(text=text):
+                summary.text = text
+                self.assertIn('SUMMARY_STATUS', codes(doc))
+        summary.text = 'Example stop-and-replan recovery control'
+        self.assertEqual(codes(doc), set())
+
+    def test_gap_analysis_cannot_replace_the_required_herein_in_partial_mapping(self):
+        doc = chart()
+        cell = doc.tables[1].cell(0, 1)
+        herein = polish.comment_paragraphs(cell)[-1]
+        herein.text = 'No complete correspondence is established for this requirement.]'
+        self.assertIn('HEREIN', codes(doc))
 
     def test_empty_nested_summary_and_missing_source_are_reported(self):
         doc = chart()
