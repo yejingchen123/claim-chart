@@ -37,7 +37,8 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
 
 3. Research the company from official sources.
    - First identify the concrete product or service being assessed, its provider, deployment and relevant period. Read [research and evidence boundaries](references/research-evidence.md), especially for partner technology, acquired/divested businesses or historical sources.
-   - Prefer the company website, official support pages, official news/media pages, official product pages, official whitepapers, or official documentation.
+   - For TCC/TCU, external driving guidance, or control using both onboard sensing and external information, read [the TCC/TCU research and mapping guide](references/tcc-tcu-guidance.md). Research concrete vehicle-specific instructions and their use by the vehicle; do not stop at a generic remote-assistance description. Include the owner-app/summon/remote-parking route when relevant to private vehicles.
+   - Prefer the company website, official support/product pages, whitepapers, manuals, and company-authored submissions hosted by regulators or legislatures, including safety plans and remote-operation responses.
    - Use non-official sources only if official sources cannot establish a necessary fact; disclose that choice in the work notes, not inside the claim chart unless appropriate.
    - For modern companies and products, browse live sources. Do not rely on memory.
    - Capture clear screenshots of relevant official page sections. Screenshots should show the relevant text or product feature, not just decorative hero images.
@@ -46,6 +47,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - Read the patent text in the first-column row carefully.
    - Identify the supported corresponding element within the assessed product or service. If the evidence supports only part of the limitation, select the closest disclosed entity or function and briefly state the functional limit in the Comment; do not present an analogous feature as proof of the entire limitation or silently substitute another company's general platform.
    - Write detailed English prose in the company column. Be specific about how the company feature performs the same or analogous function.
+   - For external-guidance rows, explain the actual sender, recipient vehicle, triggering road situation, message or instruction, and vehicle response. For the related control row, trace how onboard environmental information and the external input affect the driving decision. Lead with supported mechanisms and concrete scenarios; keep evidence gaps brief.
    - End every row's substantive text with `Herein, “{complete substantive claim phrase}” corresponds to {supported product feature}.`, using the reference's emphasis. Take the claim phrase from that row's protected left column and remove only leading structural numbering such as `1.`, `1)` or `2)` from the right-column quotation. Preserve all substantive words and conditions; do not copy an abbreviated quotation from the example. Bold both complete correspondence phrases when the reference does. Keep any brief qualification before this final sentence; do not omit the sentence because the correspondence is partial.
    - Keep material qualifications next to the detailed mapping. Distinguish documented deployment facts, partner-platform disclosures and unconfirmed inferences. Use the nested summary as an index of corresponding entities/technologies, following the summary rules below.
    - When the reference has no inline citation tags, keep `[Ref-*]` out of the Comment prose. Put traceable source lines below the comment, alongside the evidence.
@@ -106,4 +108,5 @@ The result should read like a polished legal/technical claim chart, not a rough 
 
 - `references/style-contract.md`: Exact writing, evidence, and formatting rules.
 - `references/research-evidence.md`: Product scope, partner attribution, source timing and evidence strength.
+- `references/tcc-tcu-guidance.md`: Functional TCC/TCU research, specific traffic instructions, owner-app alternatives, and the link from external information to onboard control.
 - `scripts/polish_claim_chart_docx.py`: Deterministic post-processing and validation helper for common claim-chart DOCX formatting details.

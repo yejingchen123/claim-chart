@@ -35,11 +35,14 @@ For example, a ride platform's announcement that a partner's automated driving s
 - Distinguish an announced plan, pilot, operator-attended deployment and driverless operation. A general safety requirement is not proof that a particular vehicle implements it.
 - Match all functional parts of the limitation. Similar names or the presence of sensors plus connectivity do not establish a combined control path.
 - For alternatives such as weather **and/or** special information, identify the supported alternative. Do not invent a weather feed or treat ordinary dispatch coordinates as hazard guidance.
+- For TCC/TCU-related claims, use the [specialist research guide](tcc-tcu-guidance.md) to investigate concrete lane, path, waypoint, obstruction and maneuver guidance. The absence of weather data, direct remote driving, or the company's use of the literal term `TCC/TCU` does not end that inquiry; assess the documented function against the actual claim.
 - If the evidence establishes only part of a limitation, identify the closest disclosed function and state the material limit in a short sentence before the required final `Herein` mapping. Keep extended gap analysis and requests for missing specifications in local research notes unless the user asks for that analysis. A real recovery function, for example, must not be described as sensor-fault recovery when only route-delay recovery is documented.
 
 ## Keep Evidence Reviewable
 
 Maintain a local source ledger with publisher, title, URL, publication/access date, supported claim rows, relevant passage/page, deployment connection, evidence strength and screenshot filename. Keep PDF printed-page numbers distinct from file-page numbers.
+
+Company-authored regulatory or legislative submissions are primary sources even when hosted on a government domain. Use reporting to locate the underlying response, safety plan or incident record. Check its author, date, operating mode and exact passage before relying on the reported technical detail. A reference example's prose, screenshot and linked URL must agree; trace an unmatched screenshot to its actual source instead of copying its reference label.
 
 Capture actual source pages. Preserve enough surrounding context to identify the subject and qualification. Crop for readability, but do not stitch separated fragments into an apparently continuous sentence or recreate website text as a screenshot. Show separate excerpts and disclose omissions when necessary. Retain the original capture for review.
 
