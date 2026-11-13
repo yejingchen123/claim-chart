@@ -146,6 +146,8 @@ Both sides receive the reference's emphasis. The supporting prose explains the c
 
 The nested summary lists concise entity or technology names. Evidence status and qualifications belong in the detailed analysis. Table layouts are explicitly fixed without changing the template's width values, including nested tables, so long URLs do not push Word's columns out of proportion. When Word is available, review the result there as well as in the rendered pages.
 
+By default, every detailed analysis row includes at least **two distinct, relevant evidence screenshots**, and the opening References list includes at least **eight distinct sources actually used in the rows**. Repeated images, lightly recropped passages, unused links, page fragments and mirrored renditions do not count as additional evidence. See the [counting rules](references/style-contract.md#evidence-minimums).
+
 <details>
 <summary><strong>How partner evidence is handled</strong></summary>
 
@@ -192,6 +194,8 @@ python scripts/polish_claim_chart_docx.py chart.docx --fix-labels --output polis
 | :--- | :--- |
 | `--check` | Validate without changing the input. This is the default. |
 | `--template reference.docx` | Check conventions inferred from the supplied reference. |
+| `--min-images-per-row N` | Override the default of 2 only when the user explicitly requests another minimum. |
+| `--min-references N` | Override the default of 8 distinct used sources only when the user explicitly requests another minimum. |
 | `--fix-labels` | Repair only the reference and comment markers, preserving other run formatting. |
 | `--fix-table-layout` | Disable auto-fit on outer and nested tables while preserving stored widths. |
 | `--reorder-url-first` | Explicitly convert a confirmed, uniform URL/image sequence to image/URL order. |
@@ -199,7 +203,7 @@ python scripts/polish_claim_chart_docx.py chart.docx --fix-labels --output polis
 
 The checker targets the common layout with two outer tables, the company in column two, and image-first evidence. Mixed or ambiguous evidence sequences need manual pairing. A different reference convention may require manual review.
 
-The helper does not research sources, determine factual correspondence, or replace a visual review of the Word document.
+The helper counts distinct image assets and used source URLs and detects exact image duplicates and common URL variants. It does not research sources, identify every mirror or overlapping crop, determine factual correspondence, or replace a visual review of the Word document.
 
 </details>
 

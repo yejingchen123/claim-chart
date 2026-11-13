@@ -12,10 +12,12 @@ import argparse
 from copy import deepcopy
 from dataclasses import dataclass
 from io import BytesIO
+from hashlib import sha256
 import os
 from pathlib import Path
 import re
 import tempfile
+from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from zipfile import ZipFile
 
 from docx import Document
@@ -31,6 +33,7 @@ URL = re.compile(r'https?://[^\s<>]+')
 PLAIN_REFERENCE = re.compile(r'\s*\[Ref-\d+\]\s+https?://\S+\s*')
 LEADING_ENUMERATION = re.compile(r'^\s*(?:\d+[.)]|\(\d+\))\s+')
 SUMMARY_STATUS = re.compile(r'\b(?:unconfirmed|proposed|candidate|not established|no (?:supporting )?evidence)\b', re.I)
+TRACKING_QUERY_KEYS = {'fbclid', 'gclid', 'dclid', 'msclkid', 'mc_cid', 'mc_eid'}
 
 
 @dataclass(frozen=True)
@@ -279,6 +282,46 @@ def reference_lines(cell):
     return lines
 
 
+def source_key(url):
+    """Deduplicate page fragments and tracking variants, not arbitrary mirrors.
+
+    Preserve meaningful query fields: distinct records may share one path.
+    HTML/PDF mirrors and republished copies still require source-ledger review.
+    """
+    parts = urlsplit(url)
+    query = [(key, value) for key, value in parse_qsl(parts.query, keep_blank_values=True)
+             if not key.lower().startswith('utm_') and key.lower() not in TRACKING_QUERY_KEYS]
+    return urlunsplit((parts.scheme.lower(), parts.netloc.lower(), parts.path,
+                       urlencode(sorted(query)), ''))
+
+
+def evidence_image_keys(cell):
+    """Count distinct, resolvable images after the Comment, including VML.
+
+    A drawing or repeated relationship is not automatically another screenshot.
+    Exact duplicate bytes count once; relevance and overlapping crops need review.
+    """
+    keys = []
+    after_comment = False
+    for paragraph in cell.paragraphs:
+        text = paragraph_text(paragraph).strip()
+        if text.startswith('Herein,') and text.endswith(']'):
+            after_comment = True
+        if not after_comment:
+            continue
+        images = paragraph._p.xpath('.//a:blip | .//*[local-name()="imagedata"]')
+        for element in images:
+            rid = element.get(qn('r:embed')) or element.get(qn('r:link')) or element.get(qn('r:id'))
+            relation = paragraph.part.rels.get(rid)
+            if relation is None or not relation.reltype.endswith('/image'):
+                continue
+            if relation.is_external:
+                keys.append(('external', source_key(relation.target_ref)))
+            else:
+                keys.append(('embedded', sha256(relation.target_part.blob).hexdigest()))
+    return keys
+
+
 def summary_prose(document):
     texts = [paragraph_text(p).strip() for p in document.tables[0].cell(0, 1).paragraphs if paragraph_text(p).strip()]
     return [text for text in texts[1:] if text != 'References:' and not REF.match(text)]
@@ -294,7 +337,7 @@ def substantive_claim(text):
     return ' '.join(text.split()).rstrip(' .;:')
 
 
-def collect_issues(document, template=None):
+def collect_issues(document, template=None, *, min_images_per_row=2, min_references=8):
     issues = []
 
     def report(code, message):
@@ -345,6 +388,8 @@ def collect_issues(document, template=None):
     for number, urls in top_lines:
         if len(urls) != 1:
             report('REFERENCE_URL', f'Summary Ref-{number}: expected one source URL.')
+    top_sources = {source_key(urls[0]) for _, urls in top_lines if len(urls) == 1}
+    used_sources = set()
     first_use = []
     for index, row in enumerate(document.tables[1].rows, 1):
         cell = row.cells[1]
@@ -382,9 +427,17 @@ def collect_issues(document, template=None):
                 report('CLAIM_PHRASE', f'Row {index}: the Herein quotation must reproduce the complete substantive left-column claim phrase, with only its leading enumeration omitted.')
         if not image_first(evidence_events(cell)):
             report('EVIDENCE_ORDER', f'Row {index}: pair each screenshot with its own following URL; supplementary references may follow.')
+        images = evidence_image_keys(cell)
+        distinct_images = len(set(images))
+        if distinct_images < min_images_per_row:
+            report('EVIDENCE_COUNT', f'Row {index}: found {distinct_images} distinct evidence image(s); at least {min_images_per_row} are required. Add relevant source captures, each followed by its own URL.')
+        if len(images) != distinct_images:
+            report('EVIDENCE_DUPLICATE', f'Row {index}: identical images are repeated; repeated placements do not count as separate evidence.')
         if evidence_prose(cell) and not allow_evidence_prose:
             report('EVIDENCE_PROSE', f'Row {index}: remove added captions, source descriptions or dates; the reference uses only screenshots and [Ref-N] URL lines after the Comment.')
         for number, urls in reference_lines(cell):
+            if len(urls) == 1:
+                used_sources.add(source_key(urls[0]))
             if number not in first_use:
                 first_use.append(number)
             if len(urls) != 1:
@@ -395,6 +448,9 @@ def collect_issues(document, template=None):
                 report('REFERENCE_MISMATCH', f'Row {index}, Ref-{number}: URL differs from the summary.')
     if [number for number, _ in top_lines] != first_use:
         report('REFERENCE_ORDER', 'Summary references must cover the row-level sources in first-use order.')
+    count = len(top_sources & used_sources)
+    if count < min_references:
+        report('REFERENCE_COUNT', f'The opening References list has {count} distinct source URL(s) actually cited in detailed rows; at least {min_references} are required. Page fragments and tracking variants count once; manually exclude mirrors of the same document.')
     return issues
 
 
@@ -428,11 +484,15 @@ def main():
     parser.add_argument('docx', type=Path)
     parser.add_argument('--check', action='store_true', help='Read-only validation (the default).')
     parser.add_argument('--template', type=Path, help='Reference DOCX for summary prose, inline citations and Herein emphasis. Claim wording is checked against the target left column.')
+    parser.add_argument('--min-images-per-row', type=int, default=2, help='Minimum distinct evidence images per detailed row (default: 2). Override only for an explicit user requirement.')
+    parser.add_argument('--min-references', type=int, default=8, help='Minimum distinct opening source URLs used in detailed rows (default: 8). Override only for an explicit user requirement.')
     parser.add_argument('--fix-labels', action='store_true', help='Repair only References:, [Comment: and the final ].')
     parser.add_argument('--fix-table-layout', action='store_true', help='Set fixed layout on every body table, including nested tables; preserve all recorded table and cell widths.')
     parser.add_argument('--reorder-url-first', action='store_true', help='Explicitly convert a confirmed, uniform URL/image sequence to image/URL.')
     parser.add_argument('--output', type=Path, help='Separate output DOCX required for repairs; never overwrites the input.')
     args = parser.parse_args()
+    if args.min_images_per_row < 0 or args.min_references < 0:
+        parser.error('Evidence minimums cannot be negative.')
     repair = args.fix_labels or args.fix_table_layout or args.reorder_url_first
     if args.check and repair:
         parser.error('--check cannot be combined with repair options.')
@@ -459,7 +519,8 @@ def main():
         except UnsafeRepair as error:
             parser.error(str(error))
         print(f'Saved {args.output}; repaired {changes} marker(s)/pair(s)/table layout(s). Input preserved.')
-    issues = collect_issues(document, template)
+    issues = collect_issues(document, template, min_images_per_row=args.min_images_per_row,
+                            min_references=args.min_references)
     if issues:
         print('\n'.join(map(str, issues)))
         return 1

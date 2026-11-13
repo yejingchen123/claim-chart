@@ -147,6 +147,8 @@ reference.docx 是格式和写作参考。
 
 嵌套摘要表只列简洁的实体或技术名称，证据状态与限定条件放在详细分析中。外层及嵌套表格都会固定布局，保留模板的原始列宽数值，防止长 URL 在 Word 中撑宽右栏、挤窄左栏。环境中有 Word 时，还会在 Word 中复核实际显示，不能只凭渲染结果判断。
 
+默认要求每一行具体分析至少有 **2 张不同且相关的证据截图**，首行 References 至少有 **8 个在详细行中实际使用的不同来源**。重复图片、同段内容轻微重裁、未使用的链接、不同页码片段及同文档镜像版本不能用于凑数。详见[证据计数规则](references/style-contract.md#evidence-minimums)。
+
 <details>
 <summary><strong>如何处理合作方的技术资料</strong></summary>
 
@@ -193,6 +195,8 @@ python scripts/polish_claim_chart_docx.py chart.docx --fix-labels --output polis
 | :--- | :--- |
 | `--check` | 只读验证，不改变输入文件；也是默认行为。 |
 | `--template reference.docx` | 按参考文档推断出的约定进行检查。 |
+| `--min-images-per-row N` | 默认每行至少 2 张不同图片；仅在用户明确要求其他下限时调整。 |
+| `--min-references N` | 默认至少 8 个实际使用的不同来源；仅在用户明确要求其他下限时调整。 |
 | `--fix-labels` | 只修复引用标题和 Comment 边界标记，保留其他文字格式。 |
 | `--fix-table-layout` | 关闭外层及嵌套表格的自动调整，保留原有宽度数值。 |
 | `--reorder-url-first` | 显式将已确认、统一的“URL／图片”序列转换成“图片／URL”。 |
@@ -200,7 +204,7 @@ python scripts/polish_claim_chart_docx.py chart.docx --fix-labels --output polis
 
 检查器针对常见版式：两个外层表格、公司内容位于第二列、证据采用图片在前的顺序。混合或不明确的证据序列需要人工配对；不同的模板约定可能需要人工复核。
 
-脚本不负责搜索资料、判断技术事实的对应关系，也不能代替 Word 文档的视觉检查。
+脚本会统计不同图片资产及实际使用的来源 URL，识别完全重复图片和常见 URL 变体。它不负责搜索资料，不能识别所有镜像或重复裁图、判断技术事实的对应关系，也不能代替 Word 文档的视觉检查。
 
 </details>
 

@@ -53,14 +53,14 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - When the reference has no inline citation tags, keep `[Ref-*]` out of the Comment prose. Put traceable source lines below the comment, alongside the evidence.
 
 5. Fill evidence for each main-table row.
-   - Select enough focused screenshots to substantiate the mapping; do not fill an image quota with weak or repetitive evidence.
+   - Include **at least two distinct, relevant evidence screenshots in every detailed analysis row**, including partial correspondences. Research additional supporting passages when needed; do not duplicate images or add decorative captures to meet the minimum. Follow the [evidence minimums and counting rules](references/style-contract.md#evidence-minimums).
    - Follow the reference's evidence order. For the standard image-first layout, each screenshot is followed by its own URL; additional supporting URL lines may follow the evidence blocks.
    - Match the evidence fields as well as their order. If the reference has only screenshots and `[Ref-*] URL` lines, include only those after the Comment. Do not add source titles, captions, excerpt explanations, publication/access dates or plain-text page notes. Keep that metadata in local work notes; a PDF page fragment may remain part of its URL.
    - Reuse the same official source in multiple rows when it supports multiple claim elements.
    - Keep screenshots readable at the final document scale; size them to the actual cell width. Retain original captures and source/page locators in local work notes.
 
 6. Fill the opening summary row last.
-   - Add `References:` followed by all source URLs used in the other company-column rows, ordered by first appearance.
+   - Add `References:` followed by **at least eight distinct source links actually used in the detailed rows**, ordered by first appearance. Page fragments, tracking variants and mirrors of the same document do not create additional sources; do not pad the list with unused links.
    - `References:` must be bold.
    - If the reference goes from the company heading directly to `References:`, do the same. Do not insert an extra comparison title, date, scope paragraph or executive summary. Explain the assessed scope in the existing first detailed Comment instead.
    - Fill the nested summary table without changing its structure. By default, use only concise entity, product, module or technology names. Do not add `proposed`, `candidate`, `unconfirmed`, evidence-status labels or analysis sentences. Keep supplier attribution in the name and substantive qualifications in the matching detailed Comment. Follow an explicit user request for a different summary convention.
@@ -82,6 +82,7 @@ If an input is missing, infer it from the current folder when obvious. Ask only 
    - To disable content-based resizing without changing stored widths, use `--fix-table-layout --output path/to/fixed.docx`. This covers nested tables too and can be combined with `--fix-labels`.
    - Evidence is never reordered by default. Use `--reorder-url-first --output path/to/polished.docx` only after confirming that the whole evidence sequence consists of URL/image pairs. Mixed or ambiguous layouts require manual pairing.
    - The checker targets the common two-outer-table, company-in-column-two, image-first layout. It detects structural/style problems, not factual correspondence or full template fidelity. Review intentional user overrides separately; do not reorder a different reference convention to satisfy this checker.
+   - Default evidence checks require two distinct images per detailed row and eight used source links in the opening list. Only use `--min-images-per-row` or `--min-references` when the user explicitly changes those minimums; fewer examples in the template do not lower them. The helper cannot generate missing evidence or identify every mirrored source or near-duplicate crop.
 
 9. Render and visually verify.
    - Render the final DOCX to page images using the document skill renderer.
@@ -100,6 +101,7 @@ The result should read like a polished legal/technical claim chart, not a rough 
 - Detailed company-side technical analysis for every row.
 - Official sources only where feasible.
 - Screenshots and URLs paired in the correct order.
+- At least two relevant, distinct screenshots per detailed row and eight distinct, used source links in the opening References list, unless the user explicitly requests different minimums.
 - First-row references and summary table completed after row-level work.
 - Original table structure preserved.
 - Word opens cleanly and rendered pages are visually acceptable.

@@ -42,6 +42,8 @@ For example, a ride platform's announcement that a partner's automated driving s
 
 Maintain a local source ledger with publisher, title, URL, publication/access date, supported claim rows, relevant passage/page, deployment connection, evidence strength and screenshot filename. Keep PDF printed-page numbers distinct from file-page numbers.
 
+Plan enough research to meet the [evidence minimums](style-contract.md#evidence-minimums): two distinct relevant screenshots per detailed row and eight distinct sources actually cited across the chart. Record equivalent HTML/PDF versions, redirects and mirrors as one source identity in the ledger. More links or screenshots do not strengthen an unsupported deployment claim; preserve the same factual limits and add only relevant evidence.
+
 Company-authored regulatory or legislative submissions are primary sources even when hosted on a government domain. Use reporting to locate the underlying response, safety plan or incident record. Check its author, date, operating mode and exact passage before relying on the reported technical detail. A reference example's prose, screenshot and linked URL must agree; trace an unmatched screenshot to its actual source instead of copying its reference label.
 
 Capture actual source pages. Preserve enough surrounding context to identify the subject and qualification. Crop for readability, but do not stitch separated fragments into an apparently continuous sentence or recreate website text as a screenshot. Show separate excerpts and disclose omissions when necessary. Retain the original capture for review.

@@ -48,6 +48,16 @@ For each row, collect evidence that directly supports the mapping. A good eviden
 
 An official supplier page is evidence about that supplier. Its applicability to the named target depends on the product/deployment connection; follow [research and evidence boundaries](research-evidence.md). Keep the supplier's name in the summary entity when needed for attribution; explain deployment limits and unresolved mappings in the detailed Comment.
 
+## Evidence Minimums
+
+Unless the user explicitly specifies different minimums, every detailed claim-analysis row needs **at least two distinct, relevant evidence screenshots**, and the opening `References:` list needs **at least eight distinct source links actually used in the detailed rows**. Apply this to all rows, not only TCC/TCU or combined-control rows. A reference document containing fewer images or links does not override these requirements.
+
+- Each screenshot must support a concrete fact in that row and retain its own following source URL. Different passages or figures from the same source can supply two images when they support complementary parts of the analysis. Repeating the same image, lightly recropping the same passage, splitting one continuous excerpt merely to increase the count, or adding a decorative hero image does not satisfy the minimum.
+- Count distinct source documents/pages, not URL spellings: `#page` fragments, tracking parameters, redirects, HTML/PDF renditions, mirrored copies and repeated links to the same document count once. Distinct pages on the same official domain can count separately when each contains relevant evidence actually used in a detailed row. Do not add unused links to the first row.
+- When either minimum is unmet, continue research and capture additional relevant evidence before delivery. Do not invent screenshots, capabilities, citations or relevance. Keep necessary deployment and attribution limits in the Comment even after adding more evidence.
+- Preserve the template's widths and typography while accommodating the evidence. Use focused, readable crops and remove repetitive prose; do not omit required evidence to preserve a page count.
+- The checker detects insufficient distinct image assets and used source URLs, exact duplicate images, page fragments and common tracking variants. Manually review relevance, overlapping crops and equivalent source renditions; automated counts alone are not a substantive evidence check.
+
 ## Evidence Ordering
 
 The required order inside each row is:
@@ -71,7 +81,7 @@ The first row's company column is special:
 - Keep the company name heading.
 - When the reference has no intervening prose, proceed directly to `References:`. Do not add a comparison title, date, assessed-service paragraph or access-date note above the references or nested table. Put necessary scope qualifications inside the existing detailed Comment cells; keep access dates in local source notes unless the reference or user requires a visible date field.
 - Add `References:` and make only that label bold.
-- List the URLs that appear in the detailed rows, in first-use order.
+- List the URLs that appear in the detailed rows, in first-use order, with at least eight distinct used sources under the counting rules above.
 - Fill the nested comparison table's second column with concise entity or technology names, unless the user explicitly asks for another convention. For example, use `Example Driver onboard computer` or `Example Perception sensor fusion`, without `proposed`, `candidate`, `unconfirmed` or evidence-status suffixes.
 - Fill every comparison cell, including partial correspondences. Use the closest actual disclosed entity or technology; do not leave a blank or substitute a gap-analysis sentence. Continue research if a relevant feature has not yet been identified, without inventing a name or capability.
 - Treat these cells as an index to the detailed mappings. Keep conditions, evidence gaps and claim-interpretation qualifications beside the correspondence in the detailed Comment, not in the entity-name cell. Retain supplier attribution and do not invent a component that the research has not identified.
@@ -110,6 +120,7 @@ Before delivery, verify:
 - The final `]` of every comment block is bold italic.
 - Both correspondence phrases have the reference's emphasis; the connecting text retains the body style.
 - Evidence order is image then URL for every evidence item unless the reference or user specifies a different convention.
+- Every detailed row has at least two distinct, relevant source screenshots; the opening list has at least eight distinct sources actually used in those rows, unless the user explicitly changes those minimums. No repeated images, overlapping recrops, unused links or mirrored renditions inflate the counts.
 - Evidence fields match the reference: no added captions, source titles, excerpt explanations, dates or prose after URL lines when the reference contains only screenshots and references.
 - `References:` in the first row is bold.
 - First-row URL list contains every URL used in the row-level evidence, ordered by first appearance.

@@ -64,8 +64,8 @@ def chart(order='image-first', broken_labels=False):
     top.paragraphs[0].text = 'Example Supplier'
     label = top.add_paragraph().add_run('References:')
     label.bold = not broken_labels
-    reference(top, 1)
-    reference(top, 2)
+    for number in range(1, 9):
+        reference(top, number)
     nested = top.add_table(rows=2, cols=2)
     nested.autofit = False
     nested.cell(0, 0).text = 'Claim Feature'
@@ -103,12 +103,13 @@ def chart(order='image-first', broken_labels=False):
         herein.add_run(', which senses traffic.')
         marker = herein.add_run(']')
         marker.bold = marker.italic = True
-    for number in (1, 2):
+    for number in range(1, 9):
         if order == 'url-first':
             reference(cell, number)
-        image = cell.add_paragraph()
-        shape = image.add_run().add_picture(BytesIO(png((number * 80, 0, 0))), width=Inches(1))
-        shape._inline.docPr.set('descr', f'Synthetic image for source {number}')
+        if number <= 2 or order == 'url-first':
+            image = cell.add_paragraph()
+            shape = image.add_run().add_picture(BytesIO(png((number * 20, 0, 0))), width=Inches(1))
+            shape._inline.docPr.set('descr', f'Synthetic image for source {number}')
         if order == 'image-first':
             reference(cell, number)
     doc.sections[0].footer.paragraphs[0].text = 'Synthetic footer, retained verbatim'
@@ -243,6 +244,78 @@ class TableLayoutTests(unittest.TestCase):
 
 
 class EvidenceTests(unittest.TestCase):
+    def test_two_images_and_eight_used_sources_meet_default_minimums(self):
+        doc = chart()
+        before = doc.element.xml
+        self.assertEqual(len(polish.evidence_image_keys(doc.tables[1].cell(0, 1))), 2)
+        self.assertEqual(len(polish.reference_lines(doc.tables[0].cell(0, 1))), 8)
+        self.assertEqual(codes(doc), set())
+        self.assertEqual(doc.element.xml, before)
+
+    def test_every_detailed_row_needs_two_images_even_if_template_has_fewer(self):
+        doc = chart()
+        copied = deepcopy(doc.tables[1].rows[0]._tr)
+        doc.tables[1]._tbl.append(copied)
+        cell = doc.tables[1].cell(1, 1)
+        images = [p for kind, p in polish.evidence_events(cell) if kind == 'IMG']
+        images[-1]._p.getparent().remove(images[-1]._p)
+        issues = [i for i in polish.collect_issues(doc, deepcopy(doc)) if i.code == 'EVIDENCE_COUNT']
+        self.assertEqual(len(issues), 1)
+        self.assertIn('Row 2: found 1', issues[0].message)
+
+    def test_repeated_image_bytes_do_not_satisfy_the_two_image_minimum(self):
+        doc = chart()
+        cell = doc.tables[1].cell(0, 1)
+        images = [p for kind, p in polish.evidence_events(cell) if kind == 'IMG']
+        first = images[0]._p.xpath('.//a:blip')[0]
+        images[1]._p.xpath('.//a:blip')[0].set(qn('r:embed'), first.get(qn('r:embed')))
+        self.assertTrue({'EVIDENCE_COUNT', 'EVIDENCE_DUPLICATE'} <= codes(doc))
+
+    def test_nonimage_drawing_does_not_count_as_an_evidence_screenshot(self):
+        doc = chart()
+        image = [p for kind, p in polish.evidence_events(doc.tables[1].cell(0, 1)) if kind == 'IMG'][-1]
+        blip = image._p.xpath('.//a:blip')[0]
+        blip.getparent().remove(blip)
+        self.assertIn('EVIDENCE_COUNT', codes(doc))
+
+    def test_eight_opening_links_are_insufficient_when_one_is_unused(self):
+        doc = chart()
+        cell = doc.tables[1].cell(0, 1)
+        paragraph = next(p for p in cell.paragraphs if polish.paragraph_text(p).startswith('[Ref-8]'))
+        paragraph._p.getparent().remove(paragraph._p)
+        issues = [i for i in polish.collect_issues(doc) if i.code == 'REFERENCE_COUNT']
+        self.assertEqual(len(issues), 1)
+        self.assertIn('7 distinct', issues[0].message)
+
+    def test_page_fragments_and_tracking_variants_do_not_inflate_source_count(self):
+        doc = chart()
+        for cell in (doc.tables[0].cell(0, 1), doc.tables[1].cell(0, 1)):
+            for paragraph in cell.paragraphs:
+                match = polish.REF.match(polish.paragraph_text(paragraph))
+                if not match:
+                    continue
+                number = int(match.group(1))
+                url = f'https://example.com/report.pdf?utm_source=ref{number}&gclid={number}#page={number}'
+                link = paragraph._p.xpath('.//w:hyperlink')[0]
+                link.set(qn('r:id'), paragraph.part.relate_to(url, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', is_external=True))
+                link.xpath('.//w:t')[0].text = url
+        issues = [i for i in polish.collect_issues(doc) if i.code == 'REFERENCE_COUNT']
+        self.assertEqual(len(issues), 1)
+        self.assertIn('1 distinct', issues[0].message)
+        self.assertNotEqual(polish.source_key('https://example.com/record?id=1'), polish.source_key('https://example.com/record?id=2'))
+
+    def test_distinct_screenshots_may_use_the_same_source(self):
+        doc = chart()
+        for cell in (doc.tables[0].cell(0, 1), doc.tables[1].cell(0, 1)):
+            paragraph = next(p for p in cell.paragraphs if polish.paragraph_text(p).startswith('[Ref-2]'))
+            link = paragraph._p.xpath('.//w:hyperlink')[0]
+            url = 'https://example.com/source-1'
+            link.set(qn('r:id'), paragraph.part.relate_to(url, 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink', is_external=True))
+            link.xpath('.//w:t')[0].text = url
+        self.assertNotIn('EVIDENCE_COUNT', codes(doc))
+        self.assertIn('REFERENCE_COUNT', codes(doc))
+        self.assertEqual(polish.collect_issues(doc, min_references=7), [])
+
     def test_already_correct_pairs_are_unchanged_on_repeated_repairs(self):
         doc = chart()
         cell = doc.tables[1].cell(0, 1)
@@ -256,11 +329,11 @@ class EvidenceTests(unittest.TestCase):
         doc = chart('url-first')
         cell = doc.tables[1].cell(0, 1)
         events = polish.evidence_events(cell)
-        before = [(events[i][1]._p.xml, events[i + 1][1]._p.xml) for i in (0, 2)]
+        before = [(events[i][1]._p.xml, events[i + 1][1]._p.xml) for i in range(0, 16, 2)]
         self.assertIn('EVIDENCE_ORDER', codes(doc))
-        self.assertEqual(polish.reorder_evidence(cell), 2)
+        self.assertEqual(polish.reorder_evidence(cell), 8)
         events = polish.evidence_events(cell)
-        after = [(events[i + 1][1]._p.xml, events[i][1]._p.xml) for i in (0, 2)]
+        after = [(events[i + 1][1]._p.xml, events[i][1]._p.xml) for i in range(0, 16, 2)]
         self.assertEqual(before, after)
         self.assertEqual(polish.reorder_evidence(cell), 0)
         self.assertEqual(codes(doc), set())
@@ -287,8 +360,8 @@ class EvidenceTests(unittest.TestCase):
 
     def test_supplementary_references_and_pdf_page_fragments_are_valid(self):
         doc = chart()
-        reference(doc.tables[0].cell(0, 1), 3)
-        reference(doc.tables[1].cell(0, 1), 3, '#page=18')
+        reference(doc.tables[0].cell(0, 1), 9)
+        reference(doc.tables[1].cell(0, 1), 9, '#page=18')
         self.assertEqual(codes(doc), set())
 
     def test_added_caption_and_dates_are_rejected_when_template_has_none(self):
@@ -452,7 +525,7 @@ class FormattingTests(unittest.TestCase):
     def test_empty_nested_summary_and_missing_source_are_reported(self):
         doc = chart()
         doc.tables[0].cell(0, 1).tables[0].cell(1, 1).text = ''
-        reference(doc.tables[1].cell(0, 1), 3)
+        reference(doc.tables[1].cell(0, 1), 9)
         self.assertTrue({'SUMMARY_EMPTY', 'REFERENCE_MISSING', 'REFERENCE_ORDER'} <= codes(doc))
 
     def test_source_number_cannot_silently_point_to_a_different_url(self):
@@ -480,6 +553,25 @@ class FormattingTests(unittest.TestCase):
 
 
 class FileTests(unittest.TestCase):
+    def test_cli_minimum_override_is_explicit_and_does_not_mutate_input(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / 'source.docx'
+            doc = chart()
+            cell = doc.tables[1].cell(0, 1)
+            image = [p for kind, p in polish.evidence_events(cell) if kind == 'IMG'][-1]
+            image._p.getparent().remove(image._p)
+            doc.save(source)
+            original = source.read_bytes()
+            result = subprocess.run([sys.executable, str(SCRIPT), str(source)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 1)
+            self.assertIn('[EVIDENCE_COUNT]', result.stdout)
+            result = subprocess.run([sys.executable, str(SCRIPT), str(source), '--min-images-per-row', '1'], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            for option in ('--min-images-per-row', '--min-references'):
+                result = subprocess.run([sys.executable, str(SCRIPT), str(source), option, '-1'], capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2)
+            self.assertEqual(source.read_bytes(), original)
+
     def test_default_cli_is_read_only(self):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / 'source.docx'
